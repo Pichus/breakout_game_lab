@@ -3,7 +3,7 @@ import pygame
 from ball import Ball
 from brick import Brick
 import constants
-from trampoline import Trampoline
+from bat import Bat
 
 pygame.init()
 
@@ -17,10 +17,6 @@ screen = pygame.display.set_mode(
 
 clock = pygame.time.Clock()
 
-ball = Ball(700, 300)
-trampoline = Trampoline(screen.get_width() // 2, 0)
-trampoline.y = screen.get_height() - trampoline.rect.height
-trampoline.rect.y = trampoline.y
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -41,7 +37,6 @@ while True:
     elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
         trampoline.move_right()
 
-    brick = Brick(100, 100)
     brick.draw(screen)
 
     trampoline.draw(screen)
