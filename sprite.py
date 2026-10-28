@@ -3,10 +3,12 @@ import pygame
 from pygame import Surface
 
 
-class Sprite:
+class Sprite(pygame.sprite.Sprite):
     def __init__(
         self, texture_path: Path, sprite_resolution: tuple[int, int], x: int, y: int
     ) -> None:
+        super().__init__()
+
         self.x: int = x
         self.y: int = y
 
