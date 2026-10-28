@@ -18,7 +18,9 @@ screen = pygame.display.set_mode(
 clock = pygame.time.Clock()
 
 ball = Ball(700, 300)
-trampoline = Trampoline(screen.get_width() // 2, screen.get_height() - 300)
+trampoline = Trampoline(screen.get_width() // 2, 0)
+trampoline.y = screen.get_height() - trampoline.rect.height
+trampoline.rect.y = trampoline.y
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
