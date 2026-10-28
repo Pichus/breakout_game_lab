@@ -7,7 +7,7 @@ import pygame
 from collision_sprite import CollisionSprite
 
 
-class Trampoline(CollisionSprite):
+class Bat(CollisionSprite):
     def __init__(self, x: int, y: int) -> None:
         sprite_resolution = (200, 100)
         texture_path = Path("resources/textures/trampoline.png")
