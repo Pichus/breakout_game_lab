@@ -21,34 +21,44 @@ class Ball(CollisionSprite):
         self.radius: int = round(self.rect.height / 2)
 
     def update(self, window: Surface, clock: Clock, trampoline: Trampoline):
-        max_width = window.get_width() - self.rect.width
-        max_height = window.get_height() - self.rect.height
+        delta = clock.tick(constants.FPS) / 1000
 
-        is_colliding_with_top_of_screen = self.y < 0
-        is_colliding_with_bottom_of_screen = self.y >= max_height
-        is_colliding_with_sides_of_screen = self.x < 0 or self.x >= max_width
+        self.x += round(self.x_speed * delta)
+        self.rect.x = self.x
+
         is_colliding_with_trampoline = self.rect.colliderect(trampoline.rect)
+        is_colliding_with_sides_of_screen = (
+            self.rect.left < 0 or self.rect.right >= window.get_width()
+        )
+
+        if is_colliding_with_trampoline:
+            if self.x_speed < 0:
+                self.rect.x = trampoline.rect.right + 10
+            if self.x_speed > 0:
+                self.rect.x = trampoline.rect.left - 10
+            self.x_speed = -self.x_speed
 
         if is_colliding_with_sides_of_screen:
             self.x_speed = -self.x_speed
 
-        if is_colliding_with_top_of_screen or is_colliding_with_bottom_of_screen:
-            self.y_speed = -self.y_speed
+        self.y += round(self.y_speed * delta)
+        self.rect.y = self.y
 
-        # if is_colliding_with_bottom_of_screen:
-        #     self.x_speed = 0
-        #     self.y_speed = 0
-        #     print("game over")
+        is_colliding_with_top_of_screen = self.rect.top <= 0
+        is_colliding_with_bottom_of_screen = self.rect.bottom >= window.get_height()
+        is_colliding_with_trampoline = self.rect.colliderect(trampoline.rect)
 
         if is_colliding_with_trampoline:
+            if self.y_speed > 0:
+                self.rect.bottom = trampoline.rect.top
+                self.y = trampoline.rect.top - trampoline.rect.height
+            if self.y_speed < 0:
+                self.rect.top = trampoline.rect.bottom
+                self.y = trampoline.rect.bottom + trampoline.rect.height
             self.y_speed = -self.y_speed
-            self.x_speed = -self.x_speed
 
-        delta = clock.tick(constants.FPS) / 1000
-        self.x += round(self.x_speed * delta)
-        self.y += round(self.y_speed * delta)
-        self.rect.x = self.x
-        self.rect.y = self.y
+        if is_colliding_with_top_of_screen or is_colliding_with_bottom_of_screen:
+            self.y_speed = -self.y_speed
 
     @override
     def draw(self, window: Surface):
