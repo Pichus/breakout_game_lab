@@ -1,9 +1,7 @@
 import pygame
 
-from ball import Ball
-from brick import Brick
 import constants
-from bat import Bat
+from game import Game
 
 pygame.init()
 
@@ -17,32 +15,24 @@ screen = pygame.display.set_mode(
 
 clock = pygame.time.Clock()
 
+game = Game()
+game.move_sprites_to_initial_positions(screen.get_width(), screen.get_height())
+
+dt = 0
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             raise SystemExit
-        # elif event.type == pygame.KEYDOWN:
-        #    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-        #        trampoline.move_left()
-        #    elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-        #        trampoline.move_right()
-
-    screen.fill("purple")
 
     keys = pygame.key.get_pressed()
+    game.on_key_press(keys)
 
-    if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-        trampoline.move_left()
-    elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-        trampoline.move_right()
+    _ = screen.fill("purple")
 
-    brick.draw(screen)
-
-    trampoline.draw(screen)
-
-    ball.update(screen, clock, trampoline)
-    ball.draw(screen)
+    game.update(screen, dt)
+    game.draw_frame(screen)
 
     pygame.display.flip()
-    clock.tick(constants.FPS)
+
+    dt = clock.tick(constants.FPS) / 1000
