@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import override
 
-from pygame import Surface
+from pygame import Rect, Surface, Vector2
 import pygame
 
 from collision_sprite import CollisionSprite
@@ -12,17 +12,27 @@ class Bat(CollisionSprite):
         sprite_resolution = (200, 100)
         texture_path = Path("resources/textures/trampoline.png")
         super().__init__(texture_path, sprite_resolution, x, y)
-        self.x_speed: int = 25
+        self.x_speed: int = 800
+        self.dt: float = 0
 
-    def move_right(self):
-        self.x += self.x_speed
-        self.rect.x += self.x_speed
-
-    def move_left(self):
-        self.x -= self.x_speed
-        self.rect.x -= self.x_speed
+    def change_position(self, position: Vector2):
+        self.x = self.rect.x = round(position.x)
+        self.y = self.rect.y = round(position.y)
 
     @override
-    def draw(self, window: Surface):
-        super().draw(window)
+    def update(self, dt: float):
+        self.dt = dt
+
+    def move_right(self):
+        self.x += round(self.x_speed * self.dt)
+        self.rect.x = self.x
+
+    def move_left(self):
+        self.x -= round(self.x_speed * self.dt)
+        self.rect.x = self.x
+
+    @override
+    def draw(self, window: Surface) -> Rect:
+        rect = super().draw(window)
         pygame.draw.rect(window, (0, 255, 0), self.rect, 2)
+        return rect
