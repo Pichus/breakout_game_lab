@@ -1,6 +1,6 @@
 from pathlib import Path
 import pygame
-from pygame import Surface
+from pygame import Rect, Surface
 
 
 class Sprite(pygame.sprite.Sprite):
@@ -18,5 +18,5 @@ class Sprite(pygame.sprite.Sprite):
         )
         self.image: Surface = scaled_image
 
-    def draw(self, window: Surface):
-        window.blit(self.image, (self.x, self.y))
+    def draw(self, window: Surface) -> Rect:
+        return window.blit(self.image, (self.x, self.y))
