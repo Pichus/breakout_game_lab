@@ -21,13 +21,13 @@ class Game:
             self.move_ball_to_initial_position()
             self.move_bat_to_initial_position()
 
-        self.ball: Ball = Ball(0, 0)
+        self.ball: Ball = Ball()
         self.ball.on_bottom_screen_collision(on_bottom_screen_collision_handler)
 
-        self.bat: Bat = Bat(0, 0)
+        self.bat: Bat = Bat()
 
         self.bricks: Group[Brick] = Group()  # pyright: ignore[reportInvalidTypeArguments]
-        self.bricks.add(Brick(0, 0))
+        self.bricks.add(Brick())
 
         pass
 
@@ -66,6 +66,6 @@ class Game:
         right_direction = Vector2(1, 0)
 
         if keys_pressed[pygame.K_LEFT] or keys_pressed[pygame.K_a]:
-            self.bat.move(left_direction)
+            self.bat.move(left_direction, self.screen_width)
         elif keys_pressed[pygame.K_RIGHT] or keys_pressed[pygame.K_d]:
-            self.bat.move(right_direction)
+            self.bat.move(right_direction, self.screen_width)

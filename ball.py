@@ -9,7 +9,7 @@ from bat import Bat
 
 
 class Ball(CollisionSprite):
-    def __init__(self, x: int, y: int) -> None:
+    def __init__(self, x: int = 0, y: int = 0) -> None:
         texture_path = Path("resources/textures/hedgehog_ball.png")
         sprite_resolution = (100, 100)
         super().__init__(texture_path, sprite_resolution, x, y)
