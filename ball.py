@@ -1,5 +1,4 @@
 from pathlib import Path
-from turtle import pos
 from typing import override
 
 from pygame import Rect, Surface
@@ -51,12 +50,8 @@ class Ball(CollisionSprite):
         is_colliding_with_trampoline = self.rect.colliderect(bat.rect)
 
         if is_colliding_with_trampoline:
-            if self.y_speed > 0:
-                self.rect.bottom = bat.rect.top
-                self.y = bat.rect.top - bat.rect.height
-            # if self.y_speed < 0:
-            #     self.rect.top = bat.rect.bottom
-            #     self.y = bat.rect.bottom + bat.rect.height
+            self.rect.bottom = bat.rect.top
+            self.y = bat.rect.top - bat.rect.height
             self.y_speed = -self.y_speed
 
         if is_colliding_with_top_of_screen or is_colliding_with_bottom_of_screen:
