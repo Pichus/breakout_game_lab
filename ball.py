@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import override
+from typing import Callable, override
 
 from pygame import Rect, Surface
 import pygame
@@ -17,10 +17,14 @@ class Ball(CollisionSprite):
         self.x_speed: int = 600
         self.y_speed: int = 600
         self.radius: int = round(self.rect.height / 2)
+        self.on_bottom_screen_collision_function: Callable[[], None]
 
     def change_position(self, position: Vector2):
         self.x = self.rect.x = round(position.x)
         self.y = self.rect.y = round(position.y)
+
+    def on_bottom_screen_collision(self, function: Callable[[], None]):
+        self.on_bottom_screen_collision_function = function
 
     @override
     def update(self, screen: Surface, dt: float, bat: Bat):
@@ -54,8 +58,11 @@ class Ball(CollisionSprite):
             self.y = bat.rect.top - bat.rect.height
             self.y_speed = -self.y_speed
 
-        if is_colliding_with_top_of_screen or is_colliding_with_bottom_of_screen:
+        if is_colliding_with_top_of_screen:
             self.y_speed = -self.y_speed
+
+        if is_colliding_with_bottom_of_screen:
+            self.on_bottom_screen_collision_function()
 
     @override
     def draw(self, window: Surface) -> Rect:
