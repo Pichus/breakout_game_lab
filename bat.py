@@ -23,12 +23,8 @@ class Bat(CollisionSprite):
     def update(self, dt: float):
         self.dt = dt
 
-    def move_right(self):
-        self.x += round(self.x_speed * self.dt)
-        self.rect.x = self.x
-
-    def move_left(self):
-        self.x -= round(self.x_speed * self.dt)
+    def move(self, direction: Vector2):
+        self.x += round(direction.x * self.x_speed * self.dt)
         self.rect.x = self.x
 
     @override
