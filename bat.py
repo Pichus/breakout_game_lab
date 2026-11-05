@@ -9,11 +9,19 @@ from collision_sprite import CollisionSprite
 
 class Bat(CollisionSprite):
     def __init__(self, x: int = 0, y: int = 0) -> None:
-        sprite_resolution = (200, 100)
-        texture_path = Path("resources/textures/trampoline.png")
-        super().__init__(texture_path, sprite_resolution, x, y)
+        super().__init__(x, y)
+        self.image: Surface
+        self.x: int
+        self.y: int
+
         self.x_speed: int = 800
         self.dt: float = 0
+
+    @override
+    def set_image(self):
+        sprite_resolution = (200, 100)
+        texture_path = Path("resources/textures/trampoline.png")
+        self.image = self.load_and_scale_image(texture_path, sprite_resolution)
 
     def change_position(self, position: Vector2):
         self.x = self.rect.x = round(position.x)

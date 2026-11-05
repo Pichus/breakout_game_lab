@@ -10,14 +10,21 @@ from bat import Bat
 
 class Ball(CollisionSprite):
     def __init__(self, x: int = 0, y: int = 0) -> None:
-        texture_path = Path("resources/textures/hedgehog_ball.png")
-        sprite_resolution = (100, 100)
-        super().__init__(texture_path, sprite_resolution, x, y)
+        super().__init__(x, y)
+        self.image: Surface
+        self.x: int
+        self.y: int
 
         self.x_speed: int = 600
         self.y_speed: int = 600
         self.radius: int = round(self.rect.height / 2)
         self.on_bottom_screen_collision_function: Callable[[], None]
+
+    @override
+    def set_image(self):
+        texture_path = Path("resources/textures/hedgehog_ball.png")
+        sprite_resolution = (100, 100)
+        self.image = self.load_and_scale_image(texture_path, sprite_resolution)
 
     def change_position(self, position: Vector2):
         self.x = self.rect.x = round(position.x)
