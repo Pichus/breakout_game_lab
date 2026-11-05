@@ -21,19 +21,13 @@ class Game:
 
         self.game_status: GameStatus = GameStatus.RUNNING
 
-        def on_lost_all_lives_handler():
-            self.game_status = GameStatus.GAME_OVER
-
         self.game_board: GameBoard = GameBoard()
-        self.game_board.on_lost_all_lives(on_lost_all_lives_handler)
-
-        def on_bottom_screen_collision_handler():
-            self.game_board.update(self.game_board.score, self.game_board.lives - 1)
-            self.move_ball_to_initial_position()
-            self.move_bat_to_initial_position()
+        self.game_board.on_lost_all_lives(lambda: self.on_lost_all_lives_handler())
 
         self.ball: Ball = Ball()
-        self.ball.on_bottom_screen_collision(on_bottom_screen_collision_handler)
+        self.ball.on_bottom_screen_collision(
+            lambda: self.on_bottom_screen_collision_handler()
+        )
 
         self.bat: Bat = Bat()
 
@@ -53,6 +47,14 @@ class Game:
                 self.screen_height // 2,
             )
         )
+
+    def on_bottom_screen_collision_handler(self):
+        self.game_board.update(self.game_board.score, self.game_board.lives - 1)
+        self.move_ball_to_initial_position()
+        self.move_bat_to_initial_position()
+
+    def on_lost_all_lives_handler(self):
+        self.game_status = GameStatus.GAME_OVER
 
     def move_bat_to_initial_position(self):
         self.bat.change_position(
