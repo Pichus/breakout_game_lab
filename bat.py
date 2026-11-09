@@ -13,6 +13,7 @@ class Bat(CollisionSprite):
         self.image: Surface
         self.x: int
         self.y: int
+        self.rect: Rect
 
         self.x_speed: int = 800
         self.dt: float = 0
