@@ -2,7 +2,9 @@ from abc import ABC
 from pathlib import Path
 
 import pygame
-from pygame import Rect, Surface
+from pygame import Rect, Surface, Vector2
+
+from constants import DEBUG
 
 
 class Sprite(pygame.sprite.Sprite, ABC):
@@ -29,4 +31,13 @@ class Sprite(pygame.sprite.Sprite, ABC):
         return scaled_image
 
     def draw(self, window: Surface) -> Rect:
-        return window.blit(self.image, (self.x, self.y))
+        drawn_rect = window.blit(self.image, (self.x, self.y))
+
+        if DEBUG:
+            return pygame.draw.rect(window, "green", drawn_rect, 5)
+
+        return drawn_rect
+
+    def change_position(self, position: Vector2):
+        self.x = round(position.x)
+        self.y = round(position.y)

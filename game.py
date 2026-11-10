@@ -176,7 +176,8 @@ class Game:
         _ = self.game_board.draw(screen)
         _ = self.bat.draw(screen)
         _ = self.ball.draw(screen)
-        _ = self.bricks.draw(screen)
+        for brick in self.bricks:
+            _ = brick.draw(screen)
 
     def on_key_press(self, keys_pressed: ScancodeWrapper):
         left_direction = Vector2(-1, 0)
