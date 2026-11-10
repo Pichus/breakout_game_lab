@@ -15,7 +15,7 @@ class Bat(CollisionSprite):
         self.y: int
         self.rect: Rect
 
-        self.x_speed: int = 800
+        self.x_speed: int = 1000
         self.dt: float = 0
 
     @override

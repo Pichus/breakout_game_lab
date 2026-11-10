@@ -13,7 +13,7 @@ class StrongerBrick(Brick):
         self.image: Surface
         self.health: int
 
-        self.health = 2
+        self.health = 3
 
     @override
     def set_image(self):

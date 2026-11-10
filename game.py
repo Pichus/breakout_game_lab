@@ -1,6 +1,5 @@
 from pygame import Surface, Vector2
 import pygame
-from pygame.font import Font
 from pygame.key import ScancodeWrapper
 from pygame.sprite import Group
 
@@ -12,6 +11,7 @@ from game_board import GameBoard
 from game_over_screen import GameOverScreen
 from game_status import GameStatus
 from stronger_brick import StrongerBrick
+from win_screen import WinScreen
 
 
 class Game:
@@ -20,6 +20,7 @@ class Game:
         self.screen_height: int = screen_height
 
         self.game_over_screen: GameOverScreen = GameOverScreen()
+        self.game_win_screen: WinScreen = WinScreen(screen_width, screen_height)
 
         self.game_status: GameStatus = GameStatus.RUNNING
 
@@ -39,8 +40,6 @@ class Game:
             brick.on_zero_health(
                 lambda points: self.on_brick_zero_health_handler(points)
             )
-
-        self.font: Font = Font(pygame.font.get_default_font(), 36)
 
         self.brick_layout: list[list[BrickType]] = [
             [
@@ -121,6 +120,9 @@ class Game:
                     brick = StrongerBrick()
 
                 brick.change_position(Vector2(x_coordinate, y_coordinate))
+                brick.on_zero_health(
+                    lambda points: self.on_brick_zero_health_handler(points)
+                )
 
                 self.bricks.add(brick)
 
@@ -140,6 +142,9 @@ class Game:
     def on_lost_all_lives_handler(self):
         self.game_status = GameStatus.GAME_OVER
 
+    def on_destroyed_all_bricks_handler(self):
+        self.game_status = GameStatus.WIN
+
     def move_bat_to_initial_position(self):
         self.bat.change_position(
             Vector2(
@@ -149,24 +154,29 @@ class Game:
         )
 
     def update(self, screen: Surface, dt: float):
-        if self.game_status == GameStatus.GAME_OVER:
+        if self.game_status != GameStatus.RUNNING:
             return
 
-        self.ball.update(screen, dt, self.bat)
+        self.ball.update(screen, dt, self.bat, self.bricks)
         self.bat.update(dt)
+
+        if len(self.bricks) == 0:
+            self.on_destroyed_all_bricks_handler()
 
     def draw_frame(self, screen: Surface):
         if self.game_status == GameStatus.GAME_OVER:
             self.game_over_screen.draw(screen, self.game_board.score)
             return
 
+        if self.game_status == GameStatus.WIN:
+            self.game_win_screen.draw(screen, self.game_board.score)
+            return
+
         _ = screen.fill("purple")
         _ = self.game_board.draw(screen)
         _ = self.bat.draw(screen)
         _ = self.ball.draw(screen)
-
-        for brick in self.bricks:
-            _ = brick.draw(screen)
+        _ = self.bricks.draw(screen)
 
     def on_key_press(self, keys_pressed: ScancodeWrapper):
         left_direction = Vector2(-1, 0)
