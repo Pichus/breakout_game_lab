@@ -1,4 +1,3 @@
-from enum import Enum
 from pathlib import Path
 from typing import Callable, override
 
@@ -8,13 +7,7 @@ from pygame.sprite import Group
 from brick import Brick
 from collision_sprite import CollisionSprite
 from bat import Bat
-
-
-class ScreenBorder(Enum):
-    UPPER = 0
-    BOTTOM = 1
-    LEFT = 2
-    RIGHT = 3
+from screen_border import ScreenBorder
 
 
 class Ball(CollisionSprite):
@@ -54,27 +47,6 @@ class Ball(CollisionSprite):
 
     def _is_colliding_with_bat(self, bat: Bat) -> bool:
         return self.rect.colliderect(bat.rect)
-
-    def _check_screen_border_collision(
-        self, screen_width: int, screen_height: int
-    ) -> ScreenBorder | None:
-        is_colliding_with_left_side_of_screen = self.rect.left < 0
-        if is_colliding_with_left_side_of_screen:
-            return ScreenBorder.LEFT
-
-        is_colliding_with_right_side_of_screen = self.rect.right > screen_width
-        if is_colliding_with_right_side_of_screen:
-            return ScreenBorder.RIGHT
-
-        is_colliding_with_top_of_screen = self.rect.top <= 0
-        if is_colliding_with_top_of_screen:
-            return ScreenBorder.UPPER
-
-        is_colliding_with_bottom_of_screen = self.rect.bottom >= screen_height
-        if is_colliding_with_bottom_of_screen:
-            return ScreenBorder.BOTTOM
-
-        return None
 
     def _check_brick_collisions(self, bricks: Group[Brick]) -> list[Brick]:  # pyright: ignore[reportInvalidTypeArguments]
         bricks_ball_collides_with = pygame.sprite.spritecollide(self, bricks, False)  # pyright: ignore[reportArgumentType, reportUnknownVariableType]
