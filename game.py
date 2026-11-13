@@ -119,7 +119,7 @@ class Game:
                 if current_brick_type == BrickType.STRONGER:
                     brick = StrongerBrick()
 
-                brick.change_position(Vector2(x_coordinate, y_coordinate))
+                brick.change_position(x_coordinate, y_coordinate)
                 brick.on_zero_health(
                     lambda points: self.on_brick_zero_health_handler(points)
                 )
@@ -128,10 +128,8 @@ class Game:
 
     def move_ball_to_initial_position(self):
         self.ball.change_position(
-            Vector2(
-                (self.screen_width // 2) - (self.ball.rect.width // 2),
-                self.screen_height // 2,
-            )
+            (self.screen_width // 2) - (self.ball.rect.width // 2),
+            self.screen_height // 2,
         )
 
     def on_bottom_screen_collision_handler(self):
@@ -147,17 +145,17 @@ class Game:
 
     def move_bat_to_initial_position(self):
         self.bat.change_position(
-            Vector2(
-                (self.screen_width // 2) - (self.bat.rect.width // 2),
-                self.screen_height - self.bat.rect.height,
-            )
+            (self.screen_width // 2) - (self.bat.rect.width // 2),
+            self.screen_height - self.bat.rect.height,
         )
 
     def update(self, screen: Surface, dt: float):
         if self.game_status != GameStatus.RUNNING:
             return
 
-        self.ball.update(screen, dt, self.bat, self.bricks)
+        self.ball.update(
+            screen.get_width(), screen.get_height(), dt, self.bat, self.bricks
+        )
         self.bat.update(dt)
 
         if len(self.bricks) == 0:

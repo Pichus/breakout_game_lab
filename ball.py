@@ -1,7 +1,8 @@
+from enum import Enum
 from pathlib import Path
 from typing import Callable, override
 
-from pygame import Rect, Surface
+from pygame import Surface, Vector2
 import pygame
 from pygame.sprite import Group
 from brick import Brick
@@ -9,18 +10,34 @@ from collision_sprite import CollisionSprite
 from bat import Bat
 
 
+class ScreenBorder(Enum):
+    UPPER = 0
+    BOTTOM = 1
+    LEFT = 2
+    RIGHT = 3
+
+
 class Ball(CollisionSprite):
+    image: Surface
+    x: int
+    y: int
+
+    _speed: Vector2
+    _direction: Vector2
+    _damage: int
+    _on_bottom_screen_collision_handler: Callable[[], None] | None
+
     def __init__(self, x: int = 0, y: int = 0) -> None:
         super().__init__(x, y)
-        self.image: Surface
-        self.x: int
-        self.y: int
 
-        self.x_speed: int = 600
-        self.y_speed: int = 600
-        self.damage: int = 1
+        self._speed = Vector2(600, 600)
+        self._direction = Vector2(1, 1)
+        self._damage = 1
+        self._on_bottom_screen_collision_handler = None
 
-        self._on_bottom_screen_collision_handler: Callable[[], None]
+    @property
+    def damage(self) -> int:
+        return self._damage
 
     @override
     def set_image(self):
@@ -33,64 +50,117 @@ class Ball(CollisionSprite):
 
     def _handle_brick_collision(self, bricks: list[Brick]):
         for brick in bricks:
-            brick.update(brick.health - self.damage)
+            brick.update(brick.health - self._damage)
 
-    @override
-    def update(self, screen: Surface, dt: float, bat: Bat, bricks: Group[Brick]):  # pyright: ignore[reportInvalidTypeArguments]
-        self.x += round(self.x_speed * dt)
-        self.rect.x = self.x
+    def _is_colliding_with_bat(self, bat: Bat) -> bool:
+        return self.rect.colliderect(bat.rect)
 
-        is_colliding_with_trampoline = self.rect.colliderect(bat.rect)
+    def _check_screen_border_collision(
+        self, screen_width: int, screen_height: int
+    ) -> ScreenBorder | None:
         is_colliding_with_left_side_of_screen = self.rect.left < 0
-        is_colliding_with_right_side_of_screen = self.rect.right > screen.get_width()
-        bricks_ball_collides_with = pygame.sprite.spritecollide(self, bricks, False)  # pyright: ignore[reportArgumentType]
-        is_colliding_with_bricks = len(bricks_ball_collides_with) > 0
-
-        if is_colliding_with_bricks:
-            self.x_speed = -self.x_speed
-            self._handle_brick_collision(bricks_ball_collides_with)
-
-        if is_colliding_with_trampoline:
-            if self.x_speed < 0:
-                self.rect.right = bat.rect.right + 1
-                self.x = self.rect.right + self.rect.width + 1
-            if self.x_speed > 0:
-                self.rect.left = bat.rect.left - 1
-                self.x = self.rect.left - self.rect.width - 1
-            self.x_speed = -self.x_speed
-
         if is_colliding_with_left_side_of_screen:
-            self.rect.left = 1
-            self.x = 1
-            self.x_speed = -self.x_speed
+            return ScreenBorder.LEFT
 
+        is_colliding_with_right_side_of_screen = self.rect.right > screen_width
         if is_colliding_with_right_side_of_screen:
-            self.rect.right = screen.get_width() - 1
-            self.x = screen.get_width() - self.rect.width - 1
-            self.x_speed = -self.x_speed
-
-        self.y += round(self.y_speed * dt)
-        self.rect.y = self.y
+            return ScreenBorder.RIGHT
 
         is_colliding_with_top_of_screen = self.rect.top <= 0
-        is_colliding_with_bottom_of_screen = self.rect.bottom >= screen.get_height()
-        is_colliding_with_trampoline = self.rect.colliderect(bat.rect)
-        bricks_ball_collides_with = pygame.sprite.spritecollide(self, bricks, False)  # pyright: ignore[reportArgumentType]
-        is_colliding_with_bricks = len(bricks_ball_collides_with) > 0
-
-        if is_colliding_with_bricks:
-            self.y_speed = -self.y_speed
-            self._handle_brick_collision(bricks_ball_collides_with)
-
-        if is_colliding_with_trampoline:
-            self.rect.bottom = bat.rect.top - 1
-            self.y = bat.rect.top - bat.rect.height - 1
-            self.y_speed = -self.y_speed
-
         if is_colliding_with_top_of_screen:
-            self.rect.top = 1
-            self.y = 1
-            self.y_speed = -self.y_speed
+            return ScreenBorder.UPPER
 
+        is_colliding_with_bottom_of_screen = self.rect.bottom >= screen_height
         if is_colliding_with_bottom_of_screen:
-            self._on_bottom_screen_collision_handler()
+            return ScreenBorder.BOTTOM
+
+        return None
+
+    def _check_brick_collisions(self, bricks: Group[Brick]) -> list[Brick]:  # pyright: ignore[reportInvalidTypeArguments]
+        bricks_ball_collides_with = pygame.sprite.spritecollide(self, bricks, False)  # pyright: ignore[reportArgumentType, reportUnknownVariableType]
+        return bricks_ball_collides_with  # pyright: ignore[reportUnknownVariableType]
+
+    def _update_on_x_axis(
+        self,
+        dt: float,
+        screen_width: int,
+        screen_height: int,
+        bat: Bat,
+        bricks: Group[Brick],  # pyright: ignore[reportInvalidTypeArguments]
+    ):
+        self.change_position(x=self.x + round(self._speed.x * self._direction.x * dt))
+
+        screen_border_collision = self._check_screen_border_collision(
+            screen_width, screen_height
+        )
+        brick_collisions = self._check_brick_collisions(bricks)
+
+        if brick_collisions:
+            self._direction.x *= -1
+            self._handle_brick_collision(brick_collisions)
+
+        if self._is_colliding_with_bat(bat):
+            is_ball_moving_in_right_direction = self._speed.x < 0
+            if is_ball_moving_in_right_direction:
+                self.change_position(x=(self.rect.right + self.rect.width + 1))
+
+            is_ball_moving_in_right_direction = self._speed.x > 0
+            if is_ball_moving_in_right_direction:
+                self.change_position(x=(self.rect.left - self.rect.width - 1))
+
+            self._direction.x *= -1
+
+        if screen_border_collision:
+            if screen_border_collision == ScreenBorder.LEFT:
+                self.change_position(x=1)
+                self._direction.x *= -1
+
+            if screen_border_collision == ScreenBorder.RIGHT:
+                self.change_position(x=(screen_width - self.rect.width - 1))
+                self._direction.x *= -1
+
+    def _update_on_y_axis(
+        self,
+        dt: float,
+        screen_width: int,
+        screen_height: int,
+        bat: Bat,
+        bricks: Group[Brick],  # pyright: ignore[reportInvalidTypeArguments]
+    ):
+        self.change_position(y=(self.y + round(self._speed.y * self._direction.y * dt)))
+
+        screen_border_collision = self._check_screen_border_collision(
+            screen_width, screen_height
+        )
+        brick_collisions = self._check_brick_collisions(bricks)
+
+        if brick_collisions:
+            self._direction.y *= -1
+            self._handle_brick_collision(brick_collisions)
+
+        if self._is_colliding_with_bat(bat):
+            self.change_position(y=(bat.rect.top - bat.rect.height - 1))
+            self._direction.y *= -1
+
+        if screen_border_collision:
+            if screen_border_collision == ScreenBorder.UPPER:
+                self.change_position(y=1)
+                self._direction.y *= -1
+
+            if (
+                screen_border_collision == ScreenBorder.BOTTOM
+                and self._on_bottom_screen_collision_handler
+            ):
+                self._on_bottom_screen_collision_handler()
+
+    @override
+    def update(
+        self,
+        screen_width: int,
+        screen_height: int,
+        dt: float,
+        bat: Bat,
+        bricks: Group[Brick],  # pyright: ignore[reportInvalidTypeArguments]
+    ):
+        self._update_on_x_axis(dt, screen_width, screen_height, bat, bricks)
+        self._update_on_y_axis(dt, screen_width, screen_height, bat, bricks)

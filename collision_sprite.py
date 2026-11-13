@@ -10,7 +10,9 @@ class CollisionSprite(Sprite):
         self.rect: Rect = self.image.get_rect(topleft=(x, y))
 
     @override
-    def change_position(self, position: Vector2):
-        super().change_position(position)
-        self.rect.x = round(position.x)
-        self.rect.y = round(position.y)
+    def change_position(self, x: int | None = None, y: int | None = None):
+        super().change_position(x, y)
+        if x is not None:
+            self.rect.x = x
+        if y is not None:
+            self.rect.y = y

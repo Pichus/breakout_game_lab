@@ -38,6 +38,8 @@ class Sprite(pygame.sprite.Sprite, ABC):
 
         return drawn_rect
 
-    def change_position(self, position: Vector2):
-        self.x = round(position.x)
-        self.y = round(position.y)
+    def change_position(self, x: int | None = None, y: int | None = None):
+        if x is not None:
+            self.x = x
+        if y is not None:
+            self.y = y
