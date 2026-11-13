@@ -1,22 +1,26 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from pathlib import Path
 
 import pygame
-from pygame import Rect, Surface, Vector2
+from pygame import Rect, Surface
 
 from constants import DEBUG
 
 
 class Sprite(pygame.sprite.Sprite, ABC):
+    x: int
+    y: int
+    image: Surface
+
     def __init__(self, x: int, y: int) -> None:
         super().__init__()
 
-        self.x: int = x
-        self.y: int = y
+        self.x = x
+        self.y = y
 
-        self.image: Surface
         self.set_image()
 
+    @abstractmethod
     def set_image(self):
         pass
 

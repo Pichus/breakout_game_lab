@@ -7,15 +7,19 @@ from collision_sprite import CollisionSprite
 
 
 class Bat(CollisionSprite):
+    image: Surface
+    x: int
+    y: int
+    rect: Rect
+
+    x_speed: int
+    dt: float
+
     def __init__(self, x: int = 0, y: int = 0) -> None:
         super().__init__(x, y)
-        self.image: Surface
-        self.x: int
-        self.y: int
-        self.rect: Rect
 
-        self.x_speed: int = 1000
-        self.dt: float = 0
+        self.x_speed = 1000
+        self.dt = 0
 
     @override
     def set_image(self):
@@ -28,15 +32,13 @@ class Bat(CollisionSprite):
         self.dt = dt
 
     def move(self, direction: Vector2, screen_width: int):
-        self.x += round(direction.x * self.x_speed * self.dt)
-        self.rect.x = self.x
+        self.change_position(x=(self.x + round(direction.x * self.x_speed * self.dt)))
 
         is_colliding_with_right_screen_border = self.x >= screen_width - self.rect.width
         is_colliding_with_left_screen_border = self.x <= 0
 
         if is_colliding_with_right_screen_border:
-            self.x = screen_width - self.rect.width
-            self.rect.right = screen_width
+            self.change_position(x=(screen_width - self.rect.width))
 
         if is_colliding_with_left_screen_border:
-            self.x = self.rect.left = 0
+            self.change_position(x=0)

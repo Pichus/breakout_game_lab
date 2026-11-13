@@ -16,7 +16,6 @@ screen = pygame.display.set_mode(
 clock = pygame.time.Clock()
 
 game = Game(screen.get_width(), screen.get_height())
-game.move_sprites_to_initial_positions()
 
 dt = 0
 while True:
@@ -28,7 +27,7 @@ while True:
     keys = pygame.key.get_pressed()
     game.on_key_press(keys)
 
-    game.update(screen, dt)
+    game.update(screen.get_width(), screen.get_height(), dt)
     game.draw_frame(screen)
 
     pygame.display.flip()

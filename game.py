@@ -25,11 +25,11 @@ class Game:
         self.game_status: GameStatus = GameStatus.RUNNING
 
         self.game_board: GameBoard = GameBoard()
-        self.game_board.on_lost_all_lives(lambda: self.on_lost_all_lives_handler())
+        self.game_board.on_lost_all_lives(lambda: self._on_lost_all_lives_handler())
 
         self.ball: Ball = Ball()
         self.ball.on_bottom_screen_collision(
-            lambda: self.on_bottom_screen_collision_handler()
+            lambda: self._on_bottom_screen_collision_handler()
         )
 
         self.bat: Bat = Bat()
@@ -38,7 +38,7 @@ class Game:
 
         for brick in self.bricks:
             brick.on_zero_health(
-                lambda points: self.on_brick_zero_health_handler(points)
+                lambda points: self._on_brick_zero_health_handler(points)
             )
 
         self.brick_layout: list[list[BrickType]] = [
@@ -74,15 +74,17 @@ class Game:
             ],
         ]
 
-    def on_brick_zero_health_handler(self, points: int):
+        self._move_sprites_to_initial_positions()
+
+    def _on_brick_zero_health_handler(self, points: int):
         self.game_board.update(self.game_board.score + points, self.game_board.lives)
 
-    def move_sprites_to_initial_positions(self):
-        self.move_ball_to_initial_position()
-        self.move_bat_to_initial_position()
-        self.position_bricks()
+    def _move_sprites_to_initial_positions(self):
+        self._move_ball_to_initial_position()
+        self._move_bat_to_initial_position()
+        self._position_bricks()
 
-    def position_bricks(self):
+    def _position_bricks(self):
         basic_brick = Brick()
 
         brick_height = basic_brick.rect.height
@@ -121,45 +123,43 @@ class Game:
 
                 brick.change_position(x_coordinate, y_coordinate)
                 brick.on_zero_health(
-                    lambda points: self.on_brick_zero_health_handler(points)
+                    lambda points: self._on_brick_zero_health_handler(points)
                 )
 
                 self.bricks.add(brick)
 
-    def move_ball_to_initial_position(self):
+    def _move_ball_to_initial_position(self):
         self.ball.change_position(
             (self.screen_width // 2) - (self.ball.rect.width // 2),
             self.screen_height // 2,
         )
 
-    def on_bottom_screen_collision_handler(self):
+    def _on_bottom_screen_collision_handler(self):
         self.game_board.update(self.game_board.score, self.game_board.lives - 1)
-        self.move_ball_to_initial_position()
-        self.move_bat_to_initial_position()
+        self._move_ball_to_initial_position()
+        self._move_bat_to_initial_position()
 
-    def on_lost_all_lives_handler(self):
+    def _on_lost_all_lives_handler(self):
         self.game_status = GameStatus.GAME_OVER
 
-    def on_destroyed_all_bricks_handler(self):
+    def _on_destroyed_all_bricks_handler(self):
         self.game_status = GameStatus.WIN
 
-    def move_bat_to_initial_position(self):
+    def _move_bat_to_initial_position(self):
         self.bat.change_position(
             (self.screen_width // 2) - (self.bat.rect.width // 2),
             self.screen_height - self.bat.rect.height,
         )
 
-    def update(self, screen: Surface, dt: float):
+    def update(self, screen_width: int, screen_height: int, dt: float):
         if self.game_status != GameStatus.RUNNING:
             return
 
-        self.ball.update(
-            screen.get_width(), screen.get_height(), dt, self.bat, self.bricks
-        )
+        self.ball.update(screen_width, screen_height, dt, self.bat, self.bricks)
         self.bat.update(dt)
 
         if len(self.bricks) == 0:
-            self.on_destroyed_all_bricks_handler()
+            self._on_destroyed_all_bricks_handler()
 
     def draw_frame(self, screen: Surface):
         if self.game_status == GameStatus.GAME_OVER:

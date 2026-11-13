@@ -1,19 +1,32 @@
 from pathlib import Path
 from typing import Callable, override
-from pygame import Rect, Surface, Vector2
+from pygame import Surface
 from collision_sprite import CollisionSprite
 
 
 class Brick(CollisionSprite):
+    image: Surface
+    x: int
+    y: int
+
+    _health: int
+    _points: int
+    _on_zero_health_handler: Callable[[int], None] | None
+
     def __init__(self, x: int = 0, y: int = 0) -> None:
         super().__init__(x, y)
-        self.image: Surface
-        self.x: int
-        self.y: int
 
-        self.health: int = 1
-        self.points: int = 1
-        self._on_zero_health_handler: Callable[[int], None] | None = None
+        self._health = 1
+        self._points = 1
+        self._on_zero_health_handler = None
+
+    @property
+    def health(self) -> int:
+        return self._health
+
+    @property
+    def points(self) -> int:
+        return self._points
 
     @override
     def set_image(self):
@@ -25,10 +38,10 @@ class Brick(CollisionSprite):
     def update(self, health: int):
         if health <= 0:
             if self._on_zero_health_handler:
-                self._on_zero_health_handler(self.points)
+                self._on_zero_health_handler(self._points)
             self.kill()
 
-        self.health = health
+        self._health = health
 
     def on_zero_health(self, handler: Callable[[int], None]):
         self._on_zero_health_handler = handler

@@ -6,14 +6,15 @@ from brick import Brick
 
 
 class StrongerBrick(Brick):
+    x: int
+    y: int
+    image: Surface
+    _health: int
+
     def __init__(self, x: int = 0, y: int = 0) -> None:
         super().__init__(x, y)
-        self.x: int
-        self.y: int
-        self.image: Surface
-        self.health: int
 
-        self.health = 3
+        self._health = 3
 
     @override
     def set_image(self):
