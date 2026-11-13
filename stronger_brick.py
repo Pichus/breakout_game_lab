@@ -10,11 +10,13 @@ class StrongerBrick(Brick):
     y: int
     image: Surface
     _health: int
+    _points: int
 
     def __init__(self, x: int = 0, y: int = 0) -> None:
         super().__init__(x, y)
 
         self._health = 3
+        self._points = 2
 
     @override
     def set_image(self):
