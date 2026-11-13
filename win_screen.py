@@ -6,7 +6,7 @@ from pygame.font import Font
 
 class WinScreen:
     def __init__(self, screen_width: int, screen_height: int) -> None:
-        self.font: Font = Font(pygame.font.get_default_font(), 120)
+        self._font: Font = Font(pygame.font.get_default_font(), 120)
         original_image = pygame.image.load(
             Path("./resources/textures/win_screen.png")
         ).convert_alpha()
@@ -16,7 +16,7 @@ class WinScreen:
         self.image: pygame.Surface = scaled_image
 
     def draw(self, screen: pygame.Surface, score: int):
-        game_over_text_surface = self.font.render(f"+{score}", True, "white")
+        game_over_text_surface = self._font.render(f"+{score}", True, "white")
 
         _ = screen.blit(self.image, (0, 0))
 

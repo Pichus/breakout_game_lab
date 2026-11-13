@@ -1,0 +1,94 @@
+@startuml breakout_game
+top to bottom direction
+hide empty methods
+hide empty fields
+
+abstract class Sprite {
+    + x: int
+    + y: int
+    + image: Surface
+    
+    + set_image()
+    + draw(window: Surface)
+    + change_position(x: int | None = None, y: int | None = None)
+}
+
+abstract class CollisionSprite {
+    + rect: Rect
+
+    + <<override>> change_position(x: int | None = None, y: int | None = None)
+}
+
+class Ball {
+    + damage: int
+
+    + on_bottom_screen_collision(handler: Callable[[], None])
+    + update(screen_width: int, screen_heigth: int, dt: float, bat: Bat, bricks: Group[Brick])
+}
+
+class Bat {
+    + <<override>> update(dt: float)
+    + move(direction: Vector2, screen_width: int    )
+}
+
+class Brick {
+    + health: int
+    + points: int
+
+    + <<override>> update(health: int)
+    + on_zero_health(handler: Callable[[int], None])
+}
+
+class StrongerBrick {
+    + <<override>> health: int
+    + <<override>> points: int
+}
+
+class GameBoard {
+    + score: int
+    + lives: int
+    
+    + on_lost_all_lives(function: Callable[[], None])
+    + update(score: int = 0, lives: int = 3)
+}
+
+class GameOverScreen {
+    + draw(screen: Surface, score: int)
+}
+
+class GameWinScreen {
+    + draw(screen: Surface, score: int)
+}
+
+enum GameStatus {
+    RUNNING
+    GAME_OVER
+    WIN
+}
+
+class Game {
+    # bat: Bat
+    + draw_frame(screen: Surface)
+    + on_key_press(keys_pressed: ScancodeWrapper)
+    + update(screen_width: int, screen_height: int, dt: float)
+    + draw(screen: Surface)
+}
+
+Sprite <|-- CollisionSprite
+CollisionSprite <|-- Ball
+CollisionSprite <|-- Bat
+CollisionSprite <|-- Brick
+Brick <|-- StrongerBrick
+
+Game *-- Ball
+Game *-- Bat
+Game "1" *-- "many" Brick
+Game *-- GameBoard
+Game *-- GameOverScreen
+Game *-- GameWinScreen
+Game *-- GameStatus
+
+Game -[hidden]u- GameStatus
+Game -[hidden]l- GameBoard
+
+@enduml

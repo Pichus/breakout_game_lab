@@ -12,8 +12,8 @@ from screen_border import ScreenBorder
 
 class Ball(CollisionSprite):
     image: Surface
-    x: int
-    y: int
+    _x: int
+    _y: int
 
     _speed: Vector2
     _direction: Vector2
@@ -33,10 +33,10 @@ class Ball(CollisionSprite):
         return self._damage
 
     @override
-    def set_image(self):
+    def _set_image(self):
         texture_path = Path("resources/textures/hedgehog_ball.png")
         sprite_resolution = (100, 100)
-        self.image = self.load_and_scale_image(texture_path, sprite_resolution)
+        self.image = self._load_and_scale_image(texture_path, sprite_resolution)
 
     def on_bottom_screen_collision(self, handler: Callable[[], None]):
         self._on_bottom_screen_collision_handler = handler
@@ -46,7 +46,7 @@ class Ball(CollisionSprite):
             brick.update(brick.health - self._damage)
 
     def _is_colliding_with_bat(self, bat: Bat) -> bool:
-        return self.rect.colliderect(bat.rect)
+        return self._rect.colliderect(bat.rect)
 
     def _check_brick_collisions(self, bricks: Group[Brick]) -> list[Brick]:  # pyright: ignore[reportInvalidTypeArguments]
         bricks_ball_collides_with = pygame.sprite.spritecollide(self, bricks, False)  # pyright: ignore[reportArgumentType, reportUnknownVariableType]
@@ -74,11 +74,11 @@ class Ball(CollisionSprite):
         if self._is_colliding_with_bat(bat):
             is_ball_moving_in_right_direction = self._speed.x < 0
             if is_ball_moving_in_right_direction:
-                self.change_position(x=(self.rect.right + self.rect.width + 1))
+                self.change_position(x=(self._rect.right + self._rect.width + 1))
 
             is_ball_moving_in_right_direction = self._speed.x > 0
             if is_ball_moving_in_right_direction:
-                self.change_position(x=(self.rect.left - self.rect.width - 1))
+                self.change_position(x=(self._rect.left - self._rect.width - 1))
 
             self._direction.x *= -1
 
@@ -88,7 +88,7 @@ class Ball(CollisionSprite):
                 self._direction.x *= -1
 
             if screen_border_collision == ScreenBorder.RIGHT:
-                self.change_position(x=(screen_width - self.rect.width - 1))
+                self.change_position(x=(screen_width - self._rect.width - 1))
                 self._direction.x *= -1
 
     def _update_on_y_axis(

@@ -6,8 +6,8 @@ from brick import Brick
 
 
 class StrongerBrick(Brick):
-    x: int
-    y: int
+    _x: int
+    _y: int
     image: Surface
     _health: int
     _points: int
@@ -19,7 +19,7 @@ class StrongerBrick(Brick):
         self._points = 2
 
     @override
-    def set_image(self):
+    def _set_image(self):
         texture_path = Path("resources/textures/stronger_brick.png")
         sprite_resolution = (150, 50)
-        self.image = self.load_and_scale_image(texture_path, sprite_resolution)
+        self.image = self._load_and_scale_image(texture_path, sprite_resolution)
